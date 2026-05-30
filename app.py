@@ -65,6 +65,15 @@ def init_db():
 def index():
     return render_template('index.html')
 
+@app.route('/test-db')
+def test_db():
+    try:
+        conn = get_db()
+        conn.close()
+        return jsonify({'ok': True, 'msg': 'Conexion exitosa'})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
 @app.route('/api/nuevo-numero')
 def nuevo_numero():
     conn = get_db()
@@ -481,4 +490,4 @@ def generar_pdf(d):
 if __name__ == '__main__':
     init_db()
     print("\n✅ Cotizador Doble E listo en http://localhost:5000\n")
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
