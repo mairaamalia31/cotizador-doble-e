@@ -27,7 +27,8 @@ def get_db():
         password=result.password,
         host=result.hostname,
         port=result.port,
-        cursor_factory=RealDictCursor
+        cursor_factory=RealDictCursor,
+        sslmode='require'
     )
     return conn
 
