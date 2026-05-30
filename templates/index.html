@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotizador – Doble E Publicidad</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1B2A4A;
+    --azul-m: #2E4F8C;
+    --azul-c: #4A7FD4;
+    --amarillo: #FFC107;
+    --verde: #28a745;
+    --rojo: #dc3545;
+    --gris-f: #f4f6fa;
+    --gris-b: #e9ecef;
+    --gris-t: #6c757d;
+    --blanco: #ffffff;
+    --sombra: 0 4px 20px rgba(27,42,74,0.12);
+    --radio: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--gris-f); color: #2d3748; min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    background: var(--azul);
+    color: #fff;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    height: 64px;
+    gap: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+  .nav-logo span { color: var(--amarillo); }
+  .nav-tabs { display: flex; gap: 0.5rem; margin-left: 2rem; }
+  .nav-tab {
+    background: transparent; border: none; color: rgba(255,255,255,0.65);
+    padding: 0.5rem 1.2rem; border-radius: 8px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .nav-tab.active { background: var(--amarillo); color: var(--azul); font-weight: 700; }
+
+  /* PÁGINAS */
+  .page { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    color: var(--azul); margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--gris-b);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card-title .icon { font-size: 1.1rem; }
+
+  /* GRID FORMULARIO */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .span-2 { grid-column: span 2; }
+
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label { font-size: 0.82rem; font-weight: 600; color: var(--gris-t); text-transform: uppercase; letter-spacing: 0.4px; }
+  .field input, .field select, .field textarea {
+    padding: 0.65rem 0.9rem;
+    border: 2px solid var(--gris-b);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.93rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--gris-f);
+    color: #2d3748;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--azul-c);
+    box-shadow: 0 0 0 3px rgba(74,127,212,0.15);
+    background: #fff;
+  }
+  .field textarea { resize: vertical; min-height: 70px; }
+
+  /* NÚMERO COTIZACIÓN */
+  .num-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--azul); color: #fff;
+    padding: 0.5rem 1.2rem; border-radius: 50px;
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.1rem;
+  }
+
+  /* TABLA ITEMS */
+  .items-table { width: 100%; border-collapse: collapse; }
+  .items-table th {
+    background: var(--azul); color: #fff;
+    padding: 0.7rem 0.8rem; font-size: 0.8rem;
+    font-weight: 600; text-align: left; letter-spacing: 0.3px;
+  }
+  .items-table th:first-child { border-radius: 8px 0 0 0; }
+  .items-table th:last-child { border-radius: 0 8px 0 0; }
+  .items-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--gris-b); }
+  .items-table tr:nth-child(even) td { background: var(--gris-f); }
+  .items-table input {
+    width: 100%; border: 1.5px solid var(--gris-b); border-radius: 6px;
+    padding: 0.45rem 0.6rem; font-family: 'Inter', sans-serif; font-size: 0.9rem;
+    background: transparent; transition: border-color 0.2s;
+  }
+  .items-table input:focus { outline: none; border-color: var(--azul-c); background: #fff; }
+  .items-table .total-cell { font-weight: 600; color: var(--azul); text-align: right; padding-right: 0.8rem; }
+  .btn-del {
+    background: none; border: none; color: var(--rojo); cursor: pointer;
+    font-size: 1.1rem; padding: 0.3rem 0.5rem; border-radius: 5px;
+    transition: background 0.2s;
+  }
+  .btn-del:hover { background: #fff0f0; }
+
+  /* TOTALES */
+  .totales-box {
+    background: var(--gris-f); border-radius: 10px; padding: 1.2rem 1.5rem;
+    max-width: 380px; margin-left: auto;
+  }
+  .totales-row { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.95rem; }
+  .totales-row.final {
+    border-top: 2px solid var(--azul); margin-top: 0.5rem; padding-top: 0.8rem;
+    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--azul);
+  }
+
+  /* BOTONES */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.7rem 1.4rem; border-radius: 8px; border: none;
+    font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; text-decoration: none;
+  }
+  .btn-primary { background: var(--azul); color: #fff; }
+  .btn-primary:hover { background: var(--azul-m); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,42,74,0.3); }
+  .btn-success { background: var(--verde); color: #fff; }
+  .btn-success:hover { background: #218838; transform: translateY(-1px); }
+  .btn-warning { background: var(--amarillo); color: var(--azul); }
+  .btn-warning:hover { background: #e0a800; transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 2px solid var(--azul-c); color: var(--azul-c); }
+  .btn-outline:hover { background: var(--azul-c); color: #fff; }
+  .btn-danger { background: var(--rojo); color: #fff; }
+  .btn-danger:hover { background: #c82333; }
+  .btn-sm { padding: 0.45rem 0.9rem; font-size: 0.82rem; }
+
+  .actions-bar { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 1.5rem; }
+
+  /* HISTORIAL */
+  .search-bar { position: relative; margin-bottom: 1.5rem; }
+  .search-bar input {
+    width: 100%; padding: 0.8rem 1rem 0.8rem 2.8rem;
+    border: 2px solid var(--gris-b); border-radius: 10px;
+    font-size: 0.95rem; font-family: 'Inter', sans-serif;
+    background: var(--blanco); transition: border-color 0.2s;
+  }
+  .search-bar input:focus { outline: none; border-color: var(--azul-c); }
+  .search-bar .ico { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--gris-t); }
+
+  .cot-list { display: flex; flex-direction: column; gap: 0.8rem; }
+  .cot-card {
+    background: var(--blanco); border-radius: 10px; border: 2px solid var(--gris-b);
+    padding: 1.1rem 1.3rem; cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center;
+  }
+  .cot-card:hover { border-color: var(--azul-c); box-shadow: var(--sombra); transform: translateY(-1px); }
+  .cot-card.selected { border-color: var(--azul); background: #f0f4ff; }
+  .cot-num {
+    background: var(--azul); color: #fff;
+    width: 54px; height: 54px; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.75rem;
+  }
+  .cot-num .n { font-size: 1.1rem; }
+  .cot-info h3 { font-size: 0.98rem; font-weight: 700; color: var(--azul); margin-bottom: 0.2rem; }
+  .cot-info p { font-size: 0.82rem; color: var(--gris-t); }
+  .cot-total { text-align: right; }
+  .cot-total .amount { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--azul); }
+  .cot-total .fecha { font-size: 0.8rem; color: var(--gris-t); }
+  .cot-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; justify-content: flex-end; }
+
+  /* DETALLE PANEL */
+  .detalle-panel {
+    background: var(--blanco); border-radius: var(--radio);
+    box-shadow: var(--sombra); padding: 2rem;
+    position: sticky; top: 80px;
+  }
+  .historial-layout { display: grid; grid-template-columns: 1fr 420px; gap: 1.5rem; align-items: start; }
+
+  .det-header { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gris-b); }
+  .det-header h2 { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--azul); font-size: 1.1rem; }
+  .det-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.88rem; }
+  .det-label { font-weight: 600; color: var(--gris-t); min-width: 100px; }
+  .det-val { color: #2d3748; }
+  .det-items { margin: 1rem 0; }
+  .det-item {
+    display: grid; grid-template-columns: 30px 1fr auto auto;
+    gap: 0.5rem; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;
+    align-items: center;
+  }
+  .det-item:nth-child(even) { background: var(--gris-f); }
+  .det-item .di-num { font-weight: 700; color: var(--azul); text-align: center; }
+  .det-item .di-precio { color: var(--gris-t); text-align: right; }
+  .det-item .di-total { font-weight: 700; text-align: right; color: var(--azul); }
+  .det-total { background: var(--azul); color: #fff; border-radius: 8px; padding: 0.8rem 1rem; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1rem; display: flex; justify-content: space-between; }
+  .det-total .amt { color: var(--amarillo); }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gris-t); }
+  .empty-state .big { font-size: 3rem; margin-bottom: 0.5rem; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--azul); color: #fff;
+    padding: 1rem 1.5rem; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    font-weight: 600; font-size: 0.9rem;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; z-index: 1000;
+    display: flex; align-items: center; gap: 0.7rem;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: var(--rojo); }
+  .toast.success { background: var(--verde); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: var(--radio); padding: 2rem;
+    max-width: 480px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--azul); margin-bottom: 1rem; }
+  .modal p { color: var(--gris-t); margin-bottom: 1.5rem; font-size: 0.95rem; }
+  .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .historial-layout { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid.three { grid-template-columns: 1fr 1fr; }
+    .span-2 { grid-column: span 1; }
+    .page { padding: 1rem; }
+    nav { padding: 0 1rem; }
+    .nav-tabs { gap: 0.2rem; }
+    .nav-tab { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">DOBLE E <span>●</span> Publicidad</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="mostrarPagina('nueva')">➕ Nueva Cotización</button>
+    <button class="nav-tab" onclick="mostrarPagina('historial')">📋 Historial</button>
+  </div>
+</nav>
+
+<!-- ===== PÁGINA: NUEVA COTIZACIÓN ===== -->
+<div id="page-nueva" class="page active">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🧾</span> Información de la Cotización</div>
+    <div class="form-grid three">
+      <div class="field">
+        <label>N° de Cotización</label>
+        <div><span class="num-badge">N° <span id="num-display">…</span></span></div>
+        <input type="hidden" id="f-numero">
+      </div>
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="f-fecha">
+      </div>
+      <div class="field">
+        <label>Tiempo de Entrega</label>
+        <input type="text" id="f-entrega" placeholder="Ej: 5 días hábiles">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🏢</span> Datos del Cliente</div>
+    <div class="form-grid">
+      <div class="field span-2">
+        <label>Nombre / Empresa</label>
+        <input type="text" id="f-cliente" placeholder="Nombre del cliente o empresa">
+      </div>
+      <div class="field">
+        <label>RUC</label>
+        <input type="text" id="f-ruc" placeholder="RUC del cliente">
+      </div>
+      <div class="field">
+        <label>Razón Social</label>
+        <input type="text" id="f-razon" placeholder="Razón social">
+      </div>
+      <div class="field span-2">
+        <label>Dirección</label>
+        <input type="text" id="f-direccion" placeholder="Dirección del cliente">
+      </div>
+      <div class="field">
+        <label>Contacto</label>
+        <input type="text" id="f-contacto" placeholder="Nombre del contacto">
+      </div>
+      <div class="field">
+        <label>Teléfonos</label>
+        <input type="text" id="f-telefonos" placeholder="Teléfonos de contacto">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📦</span> Productos / Servicios</div>
+    <div style="overflow-x:auto">
+      <table class="items-table" id="tabla-items">
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th>Detalle del producto o servicio</th>
+            <th style="width:100px">Cantidad</th>
+            <th style="width:130px">Precio Unit. (S/)</th>
+            <th style="width:120px">Total (S/)</th>
+            <th style="width:50px"></th>
+          </tr>
+        </thead>
+        <tbody id="items-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:1rem">
+      <button class="btn btn-outline btn-sm" onclick="agregarItem()">➕ Agregar producto</button>
+    </div>
+
+    <div style="margin-top:1.5rem">
+      <div class="totales-box">
+        <div class="totales-row">
+          <span>Valor de Venta:</span>
+          <span id="t-subtotal">S/ 0.00</span>
+        </div>
+        <div class="totales-row">
+          <span>IGV (18%):</span>
+          <span id="t-igv">S/ 0.00</span>
+        </div>
+        <div class="totales-row final">
+          <span>PRECIO TOTAL:</span>
+          <span id="t-total">S/ 0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📝</span> Condiciones</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Condición de Pago</label>
+        <input type="text" id="f-condicion" placeholder="Ej: 50% adelanto, 50% contra entrega">
+      </div>
+      <div class="field">
+        <label>Observaciones (opcional)</label>
+        <input type="text" id="f-obs" placeholder="Notas adicionales">
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" onclick="guardarCotizacion()">💾 Guardar Cotización</button>
+    <button class="btn btn-outline" onclick="limpiarFormulario()">🗑 Limpiar</button>
+  </div>
+
+  <div id="acciones-descarga" style="display:none; margin-top:1rem">
+    <div class="card" style="border: 2px solid var(--verde)">
+      <div class="card-title" style="color:var(--verde)">✅ Cotización guardada — ¿Deseas descargarla?</div>
+      <div class="actions-bar" style="margin-top:0">
+        <button class="btn btn-success" onclick="descargar('excel')">📊 Descargar Excel</button>
+        <button class="btn btn-warning" onclick="descargar('pdf')">📄 Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PÁGINA: HISTORIAL ===== -->
+<div id="page-historial" class="page">
+  <div class="historial-layout">
+    <div>
+      <div class="search-bar">
+        <span class="ico">🔍</span>
+        <input type="text" id="buscador" placeholder="Buscar por cliente, n° cotización, producto…" oninput="filtrarCotizaciones()">
+      </div>
+      <div class="cot-list" id="cot-list">
+        <div class="empty-state"><div class="big">📋</div>Cargando historial…</div>
+      </div>
+    </div>
+    <div>
+      <div class="detalle-panel" id="detalle-panel">
+        <div class="empty-state">
+          <div class="big">👆</div>
+          <p>Selecciona una cotización para ver su detalle</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ELIMINAR -->
+<div class="modal-overlay" id="modal-eliminar">
+  <div class="modal">
+    <h3>⚠️ Eliminar cotización</h3>
+    <p>¿Estás seguro que deseas eliminar esta cotización? Esta acción no se puede deshacer.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarEliminar()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let cotizaciones = [];
+let cotizacionActual = null;
+let idParaEliminar = null;
+let ultimoIdGuardado = null;
+
+// ====== INIT ======
+window.addEventListener('DOMContentLoaded', async () => {
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('f-fecha').value = hoy;
+  const r = await fetch('/api/nuevo-numero');
+  const d = await r.json();
+  document.getElementById('num-display').textContent = d.numero;
+  document.getElementById('f-numero').value = d.numero;
+  agregarItem();
+  agregarItem();
+});
+
+// ====== NAVEGACIÓN ======
+function mostrarPagina(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  event.target.classList.add('active');
+  if (p === 'historial') cargarHistorial();
+}
+
+// ====== ITEMS ======
+let contadorItem = 0;
+function agregarItem() {
+  const id = ++contadorItem;
+  const tbody = document.getElementById('items-body');
+  const fila = document.getElementById('fila-' + id);
+  if (fila) return;
+  const tr = document.createElement('tr');
+  tr.id = 'item-' + id;
+  tr.innerHTML = `
+    <td style="text-align:center;font-weight:700;color:var(--azul)">${tbody.children.length + 1}</td>
+    <td><input type="text" placeholder="Descripción del producto o servicio" id="det-${id}"></td>
+    <td><input type="number" min="1" value="1" id="cant-${id}" oninput="calcularTotal()"></td>
+    <td><input type="number" min="0" step="0.01" value="" placeholder="0.00" id="prec-${id}" oninput="calcularTotal()"></td>
+    <td class="total-cell" id="tot-${id}">S/ 0.00</td>
+    <td><button class="btn-del" onclick="eliminarItem(${id})">🗑</button></td>
+  `;
+  tbody.appendChild(tr);
+  renumerarItems();
+}
+
+function eliminarItem(id) {
+  const el = document.getElementById('item-' + id);
+  if (el) el.remove();
+  renumerarItems();
+  calcularTotal();
+}
+
+function renumerarItems() {
+  const filas = document.querySelectorAll('#items-body tr');
+  filas.forEach((tr, i) => {
+    tr.querySelector('td:first-child').textContent = i + 1;
+  });
+}
+
+function calcularTotal() {
+  let subtotal = 0;
+  const filas = document.querySelectorAll('#items-body tr');
+  filas.forEach(tr => {
+    const id = tr.id.replace('item-', '');
+    const cant = parseFloat(document.getElementById('cant-' + id)?.value) || 0;
+    const prec = parseFloat(document.getElementById('prec-' + id)?.value) || 0;
+    const tot = cant * prec;
+    const el = document.getElementById('tot-' + id);
+    if (el) el.textContent = 'S/ ' + tot.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+    subtotal += tot;
+  });
+  const igv = subtotal * 0.18;
+  const total = subtotal + igv;
+  document.getElementById('t-subtotal').textContent = 'S/ ' + subtotal.toLocaleString('es-PE', {minimumFractionDigits:2});
+  document.getElementById('t-igv').textContent = 'S/ ' + igv.toLocaleString('es-PE', {minimumFractionDigits:2});
+  document.getElementById('t-total').textContent = 'S/ ' + total.toLocaleString('es-PE', {minimumFractionDigits:2});
+}
+
+// ====== GUARDAR ======
+async function guardarCotizacion() {
+  const cliente = document.getElementById('f-cliente').value.trim();
+  if (!cliente) { toast('⚠️ Ingresa el nombre del cliente', 'error'); return; }
+
+  const items = [];
+  let subtotal = 0;
+  document.querySelectorAll('#items-body tr').forEach(tr => {
+    const id = tr.id.replace('item-', '');
+    const det = document.getElementById('det-' + id)?.value.trim();
+    const cant = parseFloat(document.getElementById('cant-' + id)?.value) || 0;
+    const prec = parseFloat(document.getElementById('prec-' + id)?.value) || 0;
+    if (det) {
+      items.push({ detalle: det, cantidad: cant, precio: prec });
+      subtotal += cant * prec;
+    }
+  });
+
+  if (items.length === 0) { toast('⚠️ Agrega al menos un producto', 'error'); return; }
+
+  const igv = subtotal * 0.18;
+  const total = subtotal + igv;
+
+  const payload = {
+    numero: parseInt(document.getElementById('f-numero').value),
+    fecha: document.getElementById('f-fecha').value,
+    cliente,
+    ruc: document.getElementById('f-ruc').value,
+    direccion: document.getElementById('f-direccion').value,
+    razon_social: document.getElementById('f-razon').value,
+    contacto: document.getElementById('f-contacto').value,
+    telefonos: document.getElementById('f-telefonos').value,
+    items, subtotal, igv, total,
+    tiempo_entrega: document.getElementById('f-entrega').value,
+    condicion_pago: document.getElementById('f-condicion').value,
+  };
+
+  const r = await fetch('/api/guardar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const d = await r.json();
+  if (d.ok) {
+    ultimoIdGuardado = d.id;
+    toast('✅ Cotización N° ' + payload.numero + ' guardada correctamente', 'success');
+    document.getElementById('acciones-descarga').style.display = 'block';
+    document.getElementById('acciones-descarga').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    toast('❌ ' + (d.error || 'Error al guardar'), 'error');
+  }
+}
+
+function descargar(tipo) {
+  if (!ultimoIdGuardado) return;
+  window.open('/api/descargar/' + tipo + '/' + ultimoIdGuardado, '_blank');
+}
+
+function limpiarFormulario() {
+  document.getElementById('f-cliente').value = '';
+  document.getElementById('f-ruc').value = '';
+  document.getElementById('f-direccion').value = '';
+  document.getElementById('f-razon').value = '';
+  document.getElementById('f-contacto').value = '';
+  document.getElementById('f-telefonos').value = '';
+  document.getElementById('f-entrega').value = '';
+  document.getElementById('f-condicion').value = '';
+  document.getElementById('items-body').innerHTML = '';
+  contadorItem = 0;
+  agregarItem(); agregarItem();
+  calcularTotal();
+  document.getElementById('acciones-descarga').style.display = 'none';
+  ultimoIdGuardado = null;
+  fetch('/api/nuevo-numero').then(r=>r.json()).then(d=>{
+    document.getElementById('num-display').textContent = d.numero;
+    document.getElementById('f-numero').value = d.numero;
+  });
+}
+
+// ====== HISTORIAL ======
+async function cargarHistorial() {
+  const r = await fetch('/api/cotizaciones');
+  cotizaciones = await r.json();
+  renderizarLista(cotizaciones);
+}
+
+function renderizarLista(lista) {
+  const cont = document.getElementById('cot-list');
+  if (lista.length === 0) {
+    cont.innerHTML = '<div class="empty-state"><div class="big">📂</div><p>No hay cotizaciones aún</p></div>';
+    return;
+  }
+  cont.innerHTML = lista.map(c => `
+    <div class="cot-card" id="card-${c.id}" onclick="seleccionarCotizacion(${c.id})">
+      <div class="cot-num">
+        <div style="font-size:0.6rem">COT.</div>
+        <div class="n">${c.numero}</div>
+      </div>
+      <div class="cot-info">
+        <h3>${c.cliente || 'Sin nombre'}</h3>
+        <p>${c.razon_social ? c.razon_social + ' · ' : ''}${c.contacto || ''}</p>
+        <p style="margin-top:0.2rem;color:var(--azul-c)">${c.productos || ''}</p>
+      </div>
+      <div class="cot-total">
+        <div class="amount">S/ ${Number(c.total).toLocaleString('es-PE', {minimumFractionDigits:2})}</div>
+        <div class="fecha">📅 ${c.fecha}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filtrarCotizaciones() {
+  const q = document.getElementById('buscador').value.toLowerCase();
+  const filtradas = cotizaciones.filter(c =>
+    (c.cliente||'').toLowerCase().includes(q) ||
+    String(c.numero).includes(q) ||
+    (c.productos||'').toLowerCase().includes(q) ||
+    (c.razon_social||'').toLowerCase().includes(q) ||
+    (c.contacto||'').toLowerCase().includes(q)
+  );
+  renderizarLista(filtradas);
+}
+
+async function seleccionarCotizacion(id) {
+  document.querySelectorAll('.cot-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.add('selected');
+
+  const r = await fetch('/api/cotizacion/' + id);
+  const d = await r.json();
+  cotizacionActual = d;
+
+  const items_html = d.items.map((it, i) => `
+    <div class="det-item">
+      <div class="di-num">${i+1}</div>
+      <div>${it.detalle}</div>
+      <div class="di-precio">×${it.cantidad} · S/${Number(it.precio).toLocaleString('es-PE', {minimumFractionDigits:2})}</div>
+      <div class="di-total">S/${(it.cantidad*it.precio).toLocaleString('es-PE', {minimumFractionDigits:2})}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('detalle-panel').innerHTML = `
+    <div class="det-header">
+      <h2>Cotización N° ${d.numero}</h2>
+      <p style="color:var(--gris-t);font-size:0.85rem;margin-top:0.2rem">📅 ${d.fecha}</p>
+    </div>
+    <div class="det-row"><span class="det-label">Cliente:</span><span class="det-val">${d.cliente||'—'}</span></div>
+    ${d.ruc ? `<div class="det-row"><span class="det-label">RUC:</span><span class="det-val">${d.ruc}</span></div>` : ''}
+    ${d.razon_social ? `<div class="det-row"><span class="det-label">R. Social:</span><span class="det-val">${d.razon_social}</span></div>` : ''}
+    ${d.contacto ? `<div class="det-row"><span class="det-label">Contacto:</span><span class="det-val">${d.contacto}</span></div>` : ''}
+    ${d.telefonos ? `<div class="det-row"><span class="det-label">Teléfonos:</span><span class="det-val">${d.telefonos}</span></div>` : ''}
+    ${d.direccion ? `<div class="det-row"><span class="det-label">Dirección:</span><span class="det-val">${d.direccion}</span></div>` : ''}
+    <div class="det-items">${items_html}</div>
+    <div style="font-size:0.82rem;color:var(--gris-t);margin-bottom:0.5rem">
+      V. Venta: S/${Number(d.subtotal).toLocaleString('es-PE',{minimumFractionDigits:2})} · IGV 18%: S/${Number(d.igv).toLocaleString('es-PE',{minimumFractionDigits:2})}
+    </div>
+    <div class="det-total">
+      <span>TOTAL S/.</span>
+      <span class="amt">S/ ${Number(d.total).toLocaleString('es-PE', {minimumFractionDigits:2})}</span>
+    </div>
+    ${d.tiempo_entrega ? `<div class="det-row" style="margin-top:0.8rem"><span class="det-label">Entrega:</span><span class="det-val">${d.tiempo_entrega}</span></div>` : ''}
+    ${d.condicion_pago ? `<div class="det-row"><span class="det-label">Condición:</span><span class="det-val">${d.condicion_pago}</span></div>` : ''}
+    <div style="display:flex;gap:0.7rem;margin-top:1.2rem;flex-wrap:wrap">
+      <button class="btn btn-success btn-sm" onclick="descargarHist('excel',${d.id})">📊 Excel</button>
+      <button class="btn btn-warning btn-sm" onclick="descargarHist('pdf',${d.id})">📄 PDF</button>
+      <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="abrirModal(${d.id})">🗑 Eliminar</button>
+    </div>
+  `;
+}
+
+function descargarHist(tipo, id) {
+  window.open('/api/descargar/' + tipo + '/' + id, '_blank');
+}
+
+function abrirModal(id) {
+  idParaEliminar = id;
+  document.getElementById('modal-eliminar').classList.add('show');
+}
+function cerrarModal() {
+  document.getElementById('modal-eliminar').classList.remove('show');
+  idParaEliminar = null;
+}
+async function confirmarEliminar() {
+  await fetch('/api/eliminar/' + idParaEliminar, { method: 'DELETE' });
+  cerrarModal();
+  toast('🗑 Cotización eliminada', 'success');
+  document.getElementById('detalle-panel').innerHTML = '<div class="empty-state"><div class="big">👆</div><p>Selecciona una cotización para ver su detalle</p></div>';
+  cargarHistorial();
+}
+
+// ====== TOAST ======
+function toast(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (tipo || '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+flask
+openpyxl
+reportlab
+psycopg2-binary
+gunicorn
